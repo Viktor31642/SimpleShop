@@ -20,10 +20,24 @@ namespace SimpleShop.Controllers
         }
 
         // GET: Products
-        public async Task<IActionResult> Index()
+       
+            public async Task<IActionResult> Index(string? searchString)
         {
-            return View(await _context.Products.ToListAsync());
+           
+            var products = from p in _context.Products
+                           select p;
+
+            
+            if (!string.IsNullOrWhiteSpace(searchString))
+            {
+                products = products.Where(p =>
+                    p.Name.Contains(searchString) ||
+                    p.Category.Contains(searchString));
+            }
+
+            return View(await products.ToListAsync());
         }
+        
 
         // GET: Products/Details/5
         public async Task<IActionResult> Details(int? id)
