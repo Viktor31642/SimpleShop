@@ -1,23 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SimpleShop.Data;
 using SimpleShop.Models;
 
 namespace SimpleShop.Controllers
 {
-    public class ProductsController : Controller
+    public class ProductsController(ShopContext context) : Controller
     {
-        private readonly ShopContext _context;
-
-        public ProductsController(ShopContext context)
-        {
-            _context = context;
-        }
+        private readonly ShopContext _context = context;
+    
 
         // GET: Products
        

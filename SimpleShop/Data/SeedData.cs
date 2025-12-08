@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using SimpleShop.Models;
 
 namespace SimpleShop.Data
@@ -11,7 +10,7 @@ namespace SimpleShop.Data
             using var context = new ShopContext(
                 serviceProvider.GetRequiredService<DbContextOptions<ShopContext>>());
 
-            // якщо вже є товари — нічого не робимо
+            
             if (context.Products.Any())
             {
                 return;
