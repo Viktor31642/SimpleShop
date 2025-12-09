@@ -9,7 +9,7 @@ namespace SimpleShop.Data
         {
             using var context = new ShopContext(
                 serviceProvider.GetRequiredService<DbContextOptions<ShopContext>>());
-
+            // Фейкові продукти
             
             if (context.Products.Any())
             {
