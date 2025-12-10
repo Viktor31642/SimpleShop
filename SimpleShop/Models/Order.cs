@@ -3,10 +3,9 @@
     public class Order
     {
         public int Id { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-        public decimal TotalAmount { get; set; }
+        public DateTime OrderDate { get; set; }
 
-        public List<OrderItem> Items { get; set; } = new();
+        public List<OrderItem> Items { get; set; } = [];
     }
 }
