@@ -53,7 +53,6 @@ public class OrdersController(ShopContext context) : Controller
         if (!ModelState.IsValid)
             return View(model);
 
-        
         var selectedItems = model.Items
             .Where(i => i.Quantity > 0)
             .ToList();
@@ -166,7 +165,6 @@ public class OrdersController(ShopContext context) : Controller
             }
         }
 
-        
         order.Items = [.. order.Items.Where(i => i.Quantity > 0)];
 
         await _context.SaveChangesAsync();
