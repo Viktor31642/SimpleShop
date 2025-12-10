@@ -66,17 +66,24 @@ namespace SimpleShop.Controllers
                 return View(model);
             }
 
+           
+            var productIds = selectedItems.Select(i => i.ProductId).ToList();
+            var products = await _context.Products
+                .Where(p => productIds.Contains(p.Id))
+                .ToDictionaryAsync(p => p.Id);
+
+            
             var order = new Order
             {
                 OrderDate = DateTime.UtcNow,
-                Items =
-                [
-                    .. selectedItems.Select(i => new OrderItem
+                Items = selectedItems
+                    .Select(i => new OrderItem
                     {
                         ProductId = i.ProductId,
-                        Quantity = i.Quantity
+                        Quantity = i.Quantity,
+                        UnitPrice = products[i.ProductId].Price   
                     })
-                ]
+                    .ToList()
             };
 
             _context.Orders.Add(order);
@@ -84,6 +91,7 @@ namespace SimpleShop.Controllers
 
             return RedirectToAction(nameof(Details), new { id = order.Id });
         }
+
 
         // GET: Orders/Details/5
         public async Task<IActionResult> Details(int id)
