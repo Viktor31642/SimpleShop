@@ -1,0 +1,38 @@
+﻿@model IEnumerable<SimpleShop.Models.Order>
+
+@{
+    ViewData["Title"] = "Orders";
+}
+
+<h1>Orders</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create new order</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Date</th>
+            <th>Total</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
+            var total = order.Items?.Sum(i => i.Quantity * i.UnitPrice) ?? 0m;
+            <tr>
+                <td>@order.Id</td>
+                <td>@order.OrderDate.ToLocalTime().ToString("g")</td>
+                <td>@total</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@order.Id">Details</a> |
+                    <a asp-action="Edit" asp-route-id="@order.Id">Edit</a> |
+                    <a asp-action="Delete" asp-route-id="@order.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

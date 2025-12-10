@@ -8,7 +8,6 @@ namespace SimpleShop.Controllers
     {
         private readonly ILogger<HomeController> _logger = logger;
     
-
         public IActionResult Index()
         {
             return View();

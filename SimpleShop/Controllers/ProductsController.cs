@@ -9,7 +9,6 @@ namespace SimpleShop.Controllers
     {
         private readonly ShopContext _context = context;
     
-
         // GET: Products
        
             public async Task<IActionResult> Index(string? searchString)
@@ -17,8 +16,7 @@ namespace SimpleShop.Controllers
            
             var products = from p in _context.Products
                            select p;
-
-            
+        
             if (!string.IsNullOrWhiteSpace(searchString))
             {
                 products = products.Where(p =>
@@ -29,7 +27,6 @@ namespace SimpleShop.Controllers
             return View(await products.ToListAsync());
         }
         
-
         // GET: Products/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -55,8 +52,7 @@ namespace SimpleShop.Controllers
         }
 
         // POST: Products/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+   
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Price,Category,Stock")] Product product)
@@ -87,8 +83,7 @@ namespace SimpleShop.Controllers
         }
 
         // POST: Products/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+    
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Price,Category,Stock")] Product product)
