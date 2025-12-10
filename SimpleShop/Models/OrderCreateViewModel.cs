@@ -6,10 +6,8 @@
         public string Name { get; set; } = null!;
         public decimal Price { get; set; }
 
-        // чи вибрано товар
         public bool Selected { get; set; }
 
-        // кількість (по замовчуванню 1)
         public int Quantity { get; set; } = 1;
     }
 
