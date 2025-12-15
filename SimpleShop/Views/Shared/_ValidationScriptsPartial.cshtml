@@ -1,2 +1,32 @@
-﻿<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+﻿<environment include="Development">
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+    <script>
+        // Allow comma as decimal separator (uk-UA)
+        $.validator.methods.number = function (value, element) {
+            return this.optional(element) || /^-?\d+(?:[.,]\d+)?$/.test(value);
+        };
+
+        // Normalize commas for range rules too
+        $.validator.methods.range = function (value, element, param) {
+            var normalized = value.replace(",", ".");
+            return this.optional(element) || (normalized >= param[0] && normalized <= param[1]);
+        };
+    </script>
+</environment>
+
+<environment exclude="Development">
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+    <script>
+        $.validator.methods.number = function (value, element) {
+            return this.optional(element) || /^-?\d+(?:[.,]\d+)?$/.test(value);
+        };
+        $.validator.methods.range = function (value, element, param) {
+            var normalized = value.replace(",", ".");
+            return this.optional(element) || (normalized >= param[0] && normalized <= param[1]);
+        };
+    </script>
+</environment>

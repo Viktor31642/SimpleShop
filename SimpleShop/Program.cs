@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SimpleShop.Data;
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +12,17 @@ builder.Services.AddDbContext<ShopContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
+var defaultCulture = new CultureInfo("uk-UA");
+
+var localizationOptions = new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture(defaultCulture),
+    SupportedCultures = new[] { defaultCulture },
+    SupportedUICultures = new[] { defaultCulture }
+};
+
+app.UseRequestLocalization(localizationOptions);
+
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
