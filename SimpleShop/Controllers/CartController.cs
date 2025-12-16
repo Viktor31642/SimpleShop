@@ -101,6 +101,62 @@ namespace SimpleShop.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Checkout()
+        {
+            var cart = GetCart();
+            if (cart.Count == 0)
+                return RedirectToAction(nameof(Index));
+
+            var productIds = cart.Select(c => c.ProductId).ToList();
+
+            var products = await _context.Products
+                .Where(p => productIds.Contains(p.Id))
+                .ToDictionaryAsync(p => p.Id);
+
+            foreach (var item in cart)
+            {
+                if (!products.TryGetValue(item.ProductId, out var product))
+                {
+                    TempData["Error"] = $"Product not found (Id={item.ProductId}).";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                if (item.Quantity > product.Stock)
+                {
+                    TempData["Error"] = $"Not enough stock for '{product.Name}'. Available: {product.Stock}.";
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+
+            var order = new Order
+            {
+                OrderDate = DateTime.UtcNow,
+                Items = cart.Select(item => new OrderItem
+                {
+                    ProductId = item.ProductId,
+                    Quantity = item.Quantity,
+                    UnitPrice = products[item.ProductId].Price
+                }).ToList()
+            };
+
+            // Зменшуємо залишок
+            foreach (var item in cart)
+            {
+                products[item.ProductId].Stock -= item.Quantity;
+            }
+
+            _context.Orders.Add(order);
+            await _context.SaveChangesAsync();
+
+            // Очистити кошик
+            HttpContext.Session.Remove(CartKey);
+
+            return RedirectToAction("Details", "Orders", new { id = order.Id });
+        }
+
+
         // ===== helpers =====
         private List<CartItem> GetCart()
             => HttpContext.Session.GetObject<List<CartItem>>(CartKey) ?? new List<CartItem>();
