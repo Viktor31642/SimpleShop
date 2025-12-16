@@ -1,0 +1,76 @@
+﻿@model List<SimpleShop.Models.CartItem>
+
+@{
+    ViewData["Title"] = "Cart";
+    decimal total = Model.Sum(x => x.Price * x.Quantity);
+}
+
+<h1>Cart</h1>
+
+@if (Model.Count == 0)
+{
+    <p>Your cart is empty.</p>
+    <a class="btn btn-primary" asp-controller="Products" asp-action="Index">Go to products</a>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th class="text-end">Price</th>
+                <th style="width:180px;">Quantity</th>
+                <th class="text-end">Subtotal</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td class="text-end">@item.Price</td>
+
+                    <td>
+                        <form asp-action="Update" method="post" class="d-flex gap-2">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="productId" value="@item.ProductId" />
+                            <input type="number" name="quantity" value="@item.Quantity" min="0" class="form-control" />
+                            <button type="submit" class="btn btn-sm btn-primary">Update</button>
+                        </form>
+                        <small class="text-muted">0 = remove</small>
+                    </td>
+
+                    <td class="text-end">@((item.Price * item.Quantity))</td>
+
+                    <td class="text-end">
+                        <form asp-action="Remove" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@item.ProductId" />
+                            <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="3" class="text-end">Total</th>
+                <th class="text-end">@total</th>
+                <th></th>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="d-flex gap-2">
+        <form asp-action="Clear" method="post">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-warning">Clear cart</button>
+        </form>
+
+        <a class="btn btn-secondary" asp-controller="Products" asp-action="Index">Continue shopping</a>
+
+       
+        <a class="btn btn-success" asp-controller="Orders" asp-action="Create">Checkout</a>
+    </div>
+}

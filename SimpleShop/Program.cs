@@ -1,40 +1,44 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using SimpleShop.Data;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// MVC
 builder.Services.AddControllersWithViews();
 
+// DB
 builder.Services.AddDbContext<ShopContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-var app = builder.Build();
-var defaultCulture = new CultureInfo("uk-UA");
+// Session (ОБОВʼЯЗКОВО ДО Build)
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession();
 
+var app = builder.Build();
+
+// Localization
+var defaultCulture = new CultureInfo("uk-UA");
 var localizationOptions = new RequestLocalizationOptions
 {
     DefaultRequestCulture = new RequestCulture(defaultCulture),
-    SupportedCultures = new[] { defaultCulture },
-    SupportedUICultures = new[] { defaultCulture }
+    SupportedCultures = [defaultCulture],
+    SupportedUICultures = [defaultCulture]
 };
-
 app.UseRequestLocalization(localizationOptions);
 
+// Seed
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     SeedData.Initialize(services);
 }
 
-
-// Configure the HTTP request pipeline.
+// Pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -42,6 +46,9 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+
+app.UseSession();
 
 app.UseAuthorization();
 
