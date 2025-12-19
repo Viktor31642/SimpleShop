@@ -1,9 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SimpleShop.Data;
 using SimpleShop.Models;
 
-namespace SimpleShop.Controllers;
+namespace SimpleShop.Areas.Admin.Controllers;
+
+[Area("Admin")]
+[Authorize(Roles = "Admin")]
 
 public class OrdersController(ShopContext context) : Controller
 {
