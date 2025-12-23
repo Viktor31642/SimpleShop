@@ -50,42 +50,109 @@ public class OrdersController(ShopContext context) : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(OrderCreateViewModel model)
     {
-        if (!ModelState.IsValid)
-            return View(model);
-
+        // 1) Беремо тільки те, що реально вибрали
         var selectedItems = model.Items
-            .Where(i => i.Quantity > 0)
+            .Where(i => i.Selected)
             .ToList();
 
         if (selectedItems.Count == 0)
         {
             ModelState.AddModelError(string.Empty, "Будь ласка, оберіть хоча б один товар.");
+            await RehydrateProductsAsync(model);
             return View(model);
         }
 
+        // 2) Перевірка кількостей
+        foreach (var i in selectedItems)
+        {
+            if (i.Quantity <= 0)
+                ModelState.AddModelError(string.Empty, $"Кількість має бути більшою за 0 (товар Id={i.ProductId}).");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            await RehydrateProductsAsync(model);
+            return View(model);
+        }
+
+        // 3) Підтягуємо товари з БД
         var productIds = selectedItems.Select(i => i.ProductId).ToList();
         var products = await _context.Products
             .Where(p => productIds.Contains(p.Id))
-            .ToDictionaryAsync(p => p.Id);
+            .ToListAsync();
+
+        var productsById = products.ToDictionary(p => p.Id);
+
+        // 4) Перевіряємо склад
+        foreach (var i in selectedItems)
+        {
+            if (!productsById.TryGetValue(i.ProductId, out var product))
+            {
+                ModelState.AddModelError(string.Empty, $"Товар (Id={i.ProductId}) не знайдено.");
+                continue;
+            }
+
+            if (product.Stock < i.Quantity)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    $"{product.Name}: на складі {product.Stock}, ви замовили {i.Quantity}."
+                );
+            }
+        }
+
+        if (!ModelState.IsValid)
+        {
+            await RehydrateProductsAsync(model, productsById);
+            return View(model);
+        }
+
+        // 5) Створення замовлення + списання складу (в транзакції)
+        await using var tx = await _context.Database.BeginTransactionAsync();
 
         var order = new Order
         {
             OrderDate = DateTime.UtcNow,
-            Items =
-            [
-                .. selectedItems.Select(i => new OrderItem
-                {
-                    ProductId = i.ProductId,
-                    Quantity = i.Quantity,
-                    UnitPrice = products[i.ProductId].Price
-                })
-            ]
+            Items = []
         };
+
+        foreach (var i in selectedItems)
+        {
+            var product = productsById[i.ProductId];
+
+            // списуємо склад
+            product.Stock -= i.Quantity;
+
+            order.Items.Add(new OrderItem
+            {
+                ProductId = product.Id,
+                Quantity = i.Quantity,
+                UnitPrice = product.Price // ціна тільки з БД
+            });
+        }
 
         _context.Orders.Add(order);
         await _context.SaveChangesAsync();
 
+        await tx.CommitAsync();
+
         return RedirectToAction(nameof(Details), new { id = order.Id });
+    }
+
+    private async Task RehydrateProductsAsync(
+        OrderCreateViewModel model,
+        Dictionary<int, Product>? productsById = null)
+    {
+        productsById ??= await _context.Products.ToDictionaryAsync(p => p.Id);
+
+        foreach (var item in model.Items)
+        {
+            if (productsById.TryGetValue(item.ProductId, out var p))
+            {
+                item.Name = p.Name;
+                item.Price = p.Price;
+            }
+        }
     }
 
     // GET: Orders/Details/id
