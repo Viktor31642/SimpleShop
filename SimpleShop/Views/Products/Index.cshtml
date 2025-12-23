@@ -9,9 +9,7 @@
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="mb-0">Products</h1>
-        @* <a asp-action="Create" class="btn btn-primary">
-            + Create New
-        </a> *@
+      
     </div>
 
     <!-- Search -->
@@ -69,26 +67,6 @@
 
                         <td class="text-end">
                             <div class="d-flex justify-content-end gap-1">
-
-                              @*   <div class="btn-group btn-group-sm" role="group">
-                                    <a asp-action="Edit"
-                                       asp-route-id="@item.Id"
-                                       class="btn btn-outline-warning">
-                                        Edit
-                                    </a>
-
-                                    <a asp-action="Details"
-                                       asp-route-id="@item.Id"
-                                       class="btn btn-outline-info">
-                                        Details
-                                    </a>
-
-                                    <a asp-action="Delete"
-                                       asp-route-id="@item.Id"
-                                       class="btn btn-outline-danger">
-                                        Delete
-                                    </a>
-                                </div> *@
 
                                 <form asp-controller="Cart"
                                       asp-action="Add"

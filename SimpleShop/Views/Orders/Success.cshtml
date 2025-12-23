@@ -1,0 +1,34 @@
+﻿@model SimpleShop.Models.Order
+
+@{
+    ViewData["Title"] = "Order Created";
+}
+
+<h1>Order @Model.Id created</h1>
+<p>Date: @Model.OrderDate</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Qty</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Items)
+        {
+            <tr>
+                <td>@item.Product.Name</td>
+                <td>@item.Product.Price</td>
+                <td>@item.Quantity</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<p>
+    <a asp-controller="Products" asp-action="Index" class="btn btn-secondary">
+        Back to products
+    </a>
+</p>

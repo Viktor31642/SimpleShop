@@ -1,0 +1,45 @@
+﻿@model SimpleShop.Models.Order
+
+@{
+    ViewData["Title"] = "Order details";
+}
+
+<h1>Order @Model.Id</h1>
+
+<p>
+    <strong>Date:</strong> @Model.OrderDate.ToLocalTime().ToString("g")
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Unit price</th>
+            <th>Quantity</th>
+            <th>Subtotal</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Items)
+        {
+            <tr>
+                <td>@item.Product?.Name</td>
+                <td>@item.UnitPrice.ToString("0.00")</td>
+                <td>@item.Quantity</td>
+                <td>@(item.UnitPrice* item.Quantity)</td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="3" class="text-end"><strong>Total</strong></td>
+            <td>
+                @Model.Items.Sum(i => i.UnitPrice * i.Quantity).ToString("0.00")
+            </td>
+        </tr>
+    </tfoot>
+</table>
+
+<p>
+    <a asp-action="Index" class="btn btn-secondary">Back to orders</a>
+</p>
